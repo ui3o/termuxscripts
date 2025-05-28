@@ -1,0 +1,188 @@
+#!/bin/python3
+
+import os
+from datetime import datetime, timedelta
+import re
+import subprocess
+
+HOME_PATH = "/data/data/com.termux/files/home/"
+STORAGE_PATH = HOME_PATH+"storage/"
+CAMERA_PATH = "dcim/Camera/"
+MEDIA_PATH = "20250326_210359.mp4"
+PATH = STORAGE_PATH+CAMERA_PATH+MEDIA_PATH
+# find ./storage/dcim/Camera/ -type f -size +50M -exec ls -lh {} \;
+FFMPEG_ARGS = ["-map_metadata", "0", "-vcodec", "libx264", "-crf", "28", "-preset",
+               "fast", "-acodec", "aac", "-b:a", "128k", "-movflags", "use_metadata_tags"]
+
+MAX_COMPRESSABLE_COUNT = 20
+
+CMD_PHONE = 0
+CMD_TEST = 1
+CMD_BOTH = 2
+CMD_NONE = 3
+
+processId = None
+allSize = 0.0
+timestamps = []
+
+allCompressableCounter = 0
+compressableCounter = 0
+compressableFilePath = []
+
+try:
+    count = int(input('How many video?:'))
+    MAX_COMPRESSABLE_COUNT = count
+except ValueError:
+    print("Not a number")
+
+
+def replace_non_alphanumeric(text):
+    return ''.join(char if char.isalnum() else '_' for char in text)
+
+
+def extract_duration(exif_output: str) -> float:
+    match = re.search(r'^Media Duration\s+:\s+(.+)', exif_output, re.MULTILINE)
+    if match:
+        return str(match.group(1)).strip()
+    else:
+        return "0:00:00"
+
+
+def extract_author(exif_output: str) -> str:
+    match = re.search(r'^Author\s+:\s+(.+)', exif_output, re.MULTILINE)
+    if match:
+        return replace_non_alphanumeric(match.group(1).strip())
+    else:
+        return ""
+
+
+def parse_duration(duration_str):
+    if 's' in duration_str:
+        # Format: "18.52 s"
+        seconds = float(duration_str.strip().replace('s', ''))
+        return timedelta(seconds=seconds)
+    else:
+        # Format: "H:MM:SS" or "MM:SS"
+        parts = list(map(int, duration_str.strip().split(':')))
+        if len(parts) == 3:
+            h, m, s = parts
+        elif len(parts) == 2:
+            h = 0
+            m, s = parts
+        else:
+            raise ValueError("Invalid duration format")
+        return timedelta(hours=h, minutes=m, seconds=s)
+
+
+def add_duration_to_now(duration_str):
+    now = datetime.now()
+    delta = parse_duration(duration_str)
+    future_time = now + delta
+    return future_time.strftime("%Y-%m-%d %H:%M:%S")
+
+
+def contineRun():
+    yes = input('Contine?(Y/n)')
+    if len(yes) == 0 or yes == "y":
+        print("Let's continue...")
+    else:
+        exit(1)
+
+
+# List of timestamps to add
+# timestamps = ["0:02:26", "29.31 s", "0:01:04", "15.5 s"]
+
+# Convert various timestamp formats to timedelta
+def parse_timestamp(ts):
+    ts = ts.strip()
+    if re.match(r"^\d+:\d+:\d+$", ts):  # Format: H:M:S
+        h, m, s = map(int, ts.split(":"))
+        return timedelta(hours=h, minutes=m, seconds=s)
+    elif re.match(r"^\d+(\.\d+)?\s?s$", ts):  # Format: S.s s
+        seconds = float(ts.replace("s", "").strip())
+        return timedelta(seconds=seconds)
+    else:
+        raise ValueError(f"Unrecognized format: {ts}")
+
+
+def run(cmd_type=False, *popenargs, **kwargs):
+    global processId
+    isTest = os.environ.get('CODESPACE_VSCODE_FOLDER')
+    if cmd_type == CMD_PHONE and isTest is None:
+        processId = subprocess.run(*popenargs, **kwargs)
+    if cmd_type == CMD_TEST and isTest is not None:
+        processId = subprocess.run(*popenargs, **kwargs)
+    if cmd_type == CMD_BOTH:
+        processId = subprocess.run(*popenargs, **kwargs)
+
+
+def compressor(src_path: str, duration, model, size, position):
+    out = src_path.replace(".mp4", f"__{model}__.mp4")
+    print(f"----------")
+    print(f"compress start: ({position}/{MAX_COMPRESSABLE_COUNT})")
+    print(f"  src: {src_path.replace(HOME_PATH, "~/")}")
+    print(f"  dest: {out.replace(HOME_PATH, "~/")}")
+    print(f"  size: {size}")
+    print(f"  duration: {duration}")
+    print(f"  start at: {add_duration_to_now("1 s")}")
+    print(f"  stop at: {add_duration_to_now(duration)}")
+    run(CMD_NONE, ["ls", "-l", src_path], capture_output=True, text=True)
+    print(f"  ls[code]: {processId.returncode}")
+    run(CMD_NONE, ["ffmpeg", "-i", src_path, *FFMPEG_ARGS, out],
+        capture_output=True, text=True)
+    print(f"  ffmpeg[code]: {processId.returncode}")
+    run(CMD_NONE, ["exiftool", "-TagsFromFile", src_path, "-gps*", "-samsung*",
+        "-author", "-overwrite_original", out], capture_output=True, text=True)
+    print(f"  exiftool[code]: {processId.returncode}")
+
+
+run(CMD_TEST, ["cat", "tests/log.log"], capture_output=True, text=True)
+run(CMD_PHONE, ["find", STORAGE_PATH+CAMERA_PATH, "-size", "+1M", "-type",
+    "f", "-exec", "ls", "-lh", "{}", ";"], capture_output=True, text=True)
+out = str(processId.stdout).split("\n")
+# print(out)
+for x in out:
+    if x.__len__:
+        l = x.split(" ")
+        if len(l) > 1:
+            filePath = l[-1]
+            sizeStr = l[4]
+            sizeNum = float(sizeStr.replace("M", ""))
+            if x.endswith("__.mp4") is False:
+                allCompressableCounter += 1
+                if compressableCounter < MAX_COMPRESSABLE_COUNT:
+                    compressableCounter += 1
+                    allSize += sizeNum
+                    run(CMD_PHONE, [
+                        "bash", "-c", f"exiftool {filePath}"], capture_output=True, text=True)
+                    run(CMD_TEST, ["bash", "-c", f"cat tests/duration.log"],
+                        capture_output=True, text=True)
+                    out = str(processId.stdout)
+                    dur = extract_duration(out).split(": ")[-1].strip()
+                    model = extract_author(out)
+                    print(f"[ok] {sizeStr} [{dur}][{model}] {filePath}")
+                    compressableFilePath.append(
+                        f"{filePath},{dur},{model},{sizeStr}")
+                    timestamps.append(dur)
+                else:
+                    print(f"[skip] {sizeStr} {filePath}")
+            else:
+                print(f"[ignore] {sizeStr} {filePath}")
+
+# print(f"All video size is {allSize} and list is {compressableFilePath}, timestamps list is {timestamps}")
+print(
+    f"All video size is {allSize} M [{compressableCounter}/{allCompressableCounter}]")
+# Sum all the durations
+total_time = sum((parse_timestamp(ts) for ts in timestamps), timedelta())
+# Print the result
+print("Total time:", str(total_time))
+contineRun()
+
+position = 0
+for p in compressableFilePath:
+    position += 1
+    info = str(p).split(",")
+    compressor(info[0], info[1], info[2], info[3], position)
+
+run(CMD_PHONE, ["termux-media-scan", STORAGE_PATH+CAMERA_PATH])
+contineRun()
