@@ -7,7 +7,7 @@ import subprocess
 
 HOME_PATH = "/data/data/com.termux/files/home/"
 STORAGE_PATH = HOME_PATH+"storage/"
-CAMERA_PATH = "dcim/Camera/"
+CONFIG_SCAN_PATH = "dcim/Camera"
 FFMPEG_ARGS = ["-map_metadata", "0", "-vcodec", "libx264", "-crf", "28", "-preset",
                "fast", "-acodec", "aac", "-b:a", "128k", "-movflags", "use_metadata_tags"]
 
@@ -37,6 +37,7 @@ except ValueError:
     pass
 
 CONFIG_REPLACE_FILE = input('Replace original?:')
+CONFIG_SCAN_PATH = input('Path to scan:')
 
 
 def replace_non_alphanumeric(text):
@@ -156,7 +157,8 @@ def compressor(src_path: str, duration, model, size, counter):
         "-author", "-overwrite_original", out], capture_output=True, text=True)
     print(f"  exiftool[code]: {processId.returncode}")
     run(CMD_PHONE, ["ls", "-l", out], capture_output=True, text=True)
-    run(CMD_TEST, ["cat", "tests/log.log"], capture_output=True, text=True)
+    run(CMD_TEST, ["cat", f"{CONFIG_SCAN_PATH}/log.log"],
+        capture_output=True, text=True)
     print(f"  ls(out)[code]: {processId.returncode}")
     compressedSizeNum = int(str(processId.stdout).split("\n")[0].split(" ")[4])
     print(f"  out size: {human_readable_size(compressedSizeNum)}")
@@ -172,8 +174,9 @@ def compressor(src_path: str, duration, model, size, counter):
         print(f"  replace: false")
 
 
-run(CMD_TEST, ["cat", "tests/log.log"], capture_output=True, text=True)
-run(CMD_PHONE, ["find", STORAGE_PATH+CAMERA_PATH, "-size", "+1M", "-type",
+run(CMD_TEST, ["cat", f"{CONFIG_SCAN_PATH}/log.log"],
+    capture_output=True, text=True)
+run(CMD_PHONE, ["find", STORAGE_PATH+CONFIG_SCAN_PATH, "-size", "+1M", "-type",
     "f", "-exec", "ls", "-l", "{}", ";"], capture_output=True, text=True)
 out = str(processId.stdout).split("\n")
 # print(out)
@@ -191,7 +194,7 @@ for x in out:
                     allSize += sizeNum
                     run(CMD_PHONE, [
                         "bash", "-c", f"exiftool {filePath}"], capture_output=True, text=True)
-                    run(CMD_TEST, ["bash", "-c", f"cat tests/duration.log"],
+                    run(CMD_TEST, ["bash", "-c", f"cat {CONFIG_SCAN_PATH}/duration.log"],
                         capture_output=True, text=True)
                     out = str(processId.stdout)
                     dur = extract_duration(out).split(": ")[-1].strip()
@@ -219,6 +222,9 @@ for p in compressableFilePath:
     position += 1
     info = str(p).split(",")
     compressor(info[0], info[1], info[2], info[3], position)
+print(f"----------")
 
-run(CMD_PHONE, ["termux-media-scan", STORAGE_PATH+CAMERA_PATH])
+contineRun()
+print(f"trigger termux-media-scan")
+run(CMD_PHONE, ["termux-media-scan", STORAGE_PATH+CONFIG_SCAN_PATH])
 contineRun()

@@ -3,7 +3,7 @@
 [[ -n $DEMOSH ]] && exit 1
 export DEMOSH=1
 cd ~
-[[ ! -d "~/termuxscripts" ]] && git clone https://github.com/ui3o/termuxscripts.git
+git clone https://github.com/ui3o/termuxscripts.git || echo termuxscripts.git is already cloned...
 cd ~/termuxscripts
 git reset --hard
 git pull
