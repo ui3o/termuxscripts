@@ -149,7 +149,7 @@ def compressor(src_path: str, duration, model, size, counter):
     expanded_path = os.path.expanduser(src_path)
     dir = os.path.dirname(expanded_path).replace(HOME_PATH, "~/")
     print(f"----------")
-    print(f"compress start: ({counter}/{allCompressableCounter})")
+    print(f"compress start: ({counter}/{compressableCounter})")
     print(f"  dir: {dir}")
     print(f"  src: {src_path.replace(STORAGE_PATH+CONFIG_SCAN_PATH+'/', "")}")
     print(f"  dest: {out.replace(STORAGE_PATH+CONFIG_SCAN_PATH+'/', "")}")
