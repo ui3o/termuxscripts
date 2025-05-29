@@ -42,9 +42,13 @@ if len(inp.strip()):
     CONFIG_SCAN_PATH = inp.strip()
 
 
+def colorize_returncode(code:str):
+    if code == 0:
+        return f"\033[32m{code}\033[0m"
+    return f"\033[31m{code}\033[0m"
+
 def replace_non_alphanumeric(text):
     return ''.join(char if char.isalnum() else '_' for char in text)
-
 
 def extract_duration(exif_output: str) -> float:
     match = re.search(r'^Media Duration\s+:\s+(.+)', exif_output, re.MULTILINE)
@@ -158,17 +162,17 @@ def compressor(src_path: str, duration, model, size, counter):
     else:
         print(f"  replace: false")
     run(CMD_PHONE, ["ls", "-l", src_path], capture_output=True, text=True)
-    print(f"  ls(src)[code]: {processId.returncode}")
+    print(f"  ls(src)[code]: {colorize_returncode(processId.returncode)}")
     run(CMD_PHONE, ["ffmpeg", "-i", src_path, *FFMPEG_ARGS, out],
         capture_output=True, text=True)
-    print(f"  ffmpeg[code]: {processId.returncode}")
+    print(f"  ffmpeg[code]: {colorize_returncode(processId.returncode)}")
     run(CMD_PHONE, ["exiftool", "-TagsFromFile", src_path, "-gps*", "-samsung*",
         "-author", "-overwrite_original", out], capture_output=True, text=True)
-    print(f"  exiftool[code]: {processId.returncode}")
+    print(f"  exiftool[code]: {colorize_returncode(processId.returncode)}")
     run(CMD_PHONE, ["ls", "-l", out], capture_output=True, text=True)
     run(CMD_TEST, ["cat", f"{CONFIG_SCAN_PATH}/log.log"],
         capture_output=True, text=True)
-    print(f"  ls(out)[code]: {processId.returncode}")
+    print(f"  ls(out)[code]: {colorize_returncode(processId.returncode)}")
     compressedSizeNum = int(str(processId.stdout).split("\n")[0].split(" ")[4])
     print(f"  out size: {human_readable_size(compressedSizeNum)}")
     sizeOfOriginals += int(size)
@@ -179,7 +183,7 @@ def compressor(src_path: str, duration, model, size, counter):
         f"  freed sizes: {human_readable_size(sizeOfOriginals-sizeOfCompressed)}")
     if CONFIG_REPLACE_FILE == "y":
         run(CMD_PHONE, ["mv", out, src_path], capture_output=True, text=True)
-        print(f"  mv(out)[code]: {processId.returncode}")
+        print(f"  mv(out)[code]: {colorize_returncode(processId.returncode)}")
 
 
 run(CMD_TEST, ["cat", f"{CONFIG_SCAN_PATH}/log.log"],
@@ -207,14 +211,14 @@ for x in out:
                     out = str(processId.stdout)
                     dur = extract_duration(out).split(": ")[-1].strip()
                     model = extract_author(out)
-                    print(f"[ok] {sizeStr} [{dur}][{model}] {filePath}")
+                    print(f"\033[32m[ok]\033[0m {sizeStr} [{dur}][{model}] {filePath}")
                     compressableFilePath.append(
                         f"{filePath},{dur},{model},{sizeStr}")
                     timestamps.append(dur)
                 else:
                     print(f"[skip] {sizeStr} {filePath}")
             else:
-                print(f"[ignore] {sizeStr} {filePath}")
+                print(f"\033[31m[ignore]\033[0m {sizeStr} {filePath}")
 
 # print(f"All video size is {allSize} and list is {compressableFilePath}, timestamps list is {timestamps}")
 print(
