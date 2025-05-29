@@ -26,6 +26,9 @@ timestamps = []
 allCompressableCounter = 0
 compressableCounter = 0
 compressableFilePath = []
+allTimeStartAt = ""
+allTimeStopAt = ""
+allTimeDuration = ""
 
 sizeOfOriginals = 0
 sizeOfCompressed = 0
@@ -73,7 +76,7 @@ def parse_duration(duration_str):
         return timedelta(seconds=seconds)
     else:
         # Format: "H:MM:SS" or "MM:SS"
-        parts = list(map(int, duration_str.strip().split(':')))
+        parts = list(map(float, duration_str.strip().split(':')))
         if len(parts) == 3:
             h, m, s = parts
         elif len(parts) == 2:
@@ -155,8 +158,8 @@ def compressor(src_path: str, duration, model, size, counter):
     print(f"  dest: {out.replace(STORAGE_PATH+CONFIG_SCAN_PATH+'/', "")}")
     print(f"  src size: {human_readable_size(int(size))}")
     print(f"  duration: {duration}")
-    print(f"  start at: {add_duration_to_now("1 s")}")
-    print(f"  stop at: {add_duration_to_now(duration)}")
+    print(f"      start at: {add_duration_to_now('1 s')}")
+    print(f"      stop at: {add_duration_to_now(duration)}")
     if CONFIG_DELETE_ORIGINAL_FILE == "y":
         print(f"  delete original: true")
     else:
@@ -177,6 +180,9 @@ def compressor(src_path: str, duration, model, size, counter):
     print(f"  out size: {human_readable_size(compressedSizeNum)}")
     sizeOfOriginals += int(size)
     sizeOfCompressed += compressedSizeNum
+    print(f"  all duration: {allTimeDuration}")
+    print(f"      start at: {allTimeStartAt}")
+    print(f"      stop at: {allTimeStopAt}")
     print(
         f"  cur compr sizes: {human_readable_size(compressedSizeNum)}/{human_readable_size(int(size))}")
     print(
@@ -227,10 +233,15 @@ for x in out:
 print(
     f"All video size is {human_readable_size(allSize)} [{compressableCounter}/{allCompressableCounter}]")
 # Sum all the durations
-total_time = sum((parse_timestamp(ts) for ts in timestamps), timedelta())
+total_time = str(sum((parse_timestamp(ts) for ts in timestamps), timedelta()))
 # Print the result
-print("Total time:", str(total_time))
+print("Total time:", total_time)
 contineRun()
+
+allTimeDuration = total_time
+allTimeStartAt = f"{add_duration_to_now('1 s')}"
+allTimeStopAt = f"{add_duration_to_now(total_time)}"
+
 
 position = 0
 for p in compressableFilePath:
