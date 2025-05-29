@@ -31,13 +31,15 @@ sizeOfOriginals = 0
 sizeOfCompressed = 0
 
 try:
-    count = int(input('How many video?:'))
+    count = int(input(f"How many video({CONFIG_MAX_COMPRESSABLE_COUNT})?:"))
     CONFIG_MAX_COMPRESSABLE_COUNT = count
 except ValueError:
     pass
 
-CONFIG_REPLACE_FILE = input('Replace original?:')
-CONFIG_SCAN_PATH = input('Path to scan:')
+CONFIG_REPLACE_FILE = input('Replace original?(N/y):')
+inp = input(f"Path to scan({CONFIG_SCAN_PATH}):")
+if len(inp.strip()):
+    CONFIG_SCAN_PATH = inp.strip()
 
 
 def replace_non_alphanumeric(text):
@@ -148,6 +150,10 @@ def compressor(src_path: str, duration, model, size, counter):
     print(f"  duration: {duration}")
     print(f"  start at: {add_duration_to_now("1 s")}")
     print(f"  stop at: {add_duration_to_now(duration)}")
+    if CONFIG_REPLACE_FILE == "y":
+        print(f"  replace: true")
+    else:
+        print(f"  replace: false")
     run(CMD_PHONE, ["ls", "-l", src_path], capture_output=True, text=True)
     print(f"  ls(src)[code]: {processId.returncode}")
     run(CMD_PHONE, ["ffmpeg", "-i", src_path, *FFMPEG_ARGS, out],
@@ -167,11 +173,8 @@ def compressor(src_path: str, duration, model, size, counter):
     print(
         f"  compressed sizes: {human_readable_size(sizeOfCompressed)}/{human_readable_size(sizeOfOriginals)}")
     if CONFIG_REPLACE_FILE == "y":
-        print(f"  replace: true")
         run(CMD_PHONE, ["mv", out, src_path], capture_output=True, text=True)
         print(f"  mv(out)[code]: {processId.returncode}")
-    else:
-        print(f"  replace: false")
 
 
 run(CMD_TEST, ["cat", f"{CONFIG_SCAN_PATH}/log.log"],
