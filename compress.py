@@ -219,7 +219,7 @@ for x in out:
                 else:
                     print(f"[skip] {sizeStr} {shortFilePathToPrint}")
             else:
-                print(f"\033[31m[ignore]\033[0m {sizeStr} {shortFilePathToPrint}")
+                print(f"\033[33m[ignore]\033[0m {sizeStr} {shortFilePathToPrint}")
 
 # print(f"All video size is {allSize} and list is {compressableFilePath}, timestamps list is {timestamps}")
 print(
