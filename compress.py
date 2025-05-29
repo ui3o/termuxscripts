@@ -142,10 +142,13 @@ def compressor(src_path: str, duration, model, size, counter):
     global sizeOfOriginals
     global sizeOfCompressed
     out = src_path.replace(".mp4", f"__{model}__.mp4")
+    expanded_path = os.path.expanduser(src_path)
+    dir = os.path.dirname(expanded_path).replace(HOME_PATH, "~/")
     print(f"----------")
     print(f"compress start: ({counter}/{allCompressableCounter})")
-    print(f"  src: {src_path.replace(HOME_PATH, "~/")}")
-    print(f"  dest: {out.replace(HOME_PATH, "~/")}")
+    print(f"  dir: {dir}")
+    print(f"  src: {src_path.replace(STORAGE_PATH+CONFIG_SCAN_PATH+'/', "")}")
+    print(f"  dest: {out.replace(STORAGE_PATH+CONFIG_SCAN_PATH+'/', "")}")
     print(f"  src size: {human_readable_size(int(size))}")
     print(f"  duration: {duration}")
     print(f"  start at: {add_duration_to_now("1 s")}")
