@@ -12,7 +12,7 @@ FFMPEG_ARGS = ["-map_metadata", "0", "-vcodec", "libx264", "-crf", "28", "-prese
                "fast", "-acodec", "aac", "-b:a", "128k", "-movflags", "use_metadata_tags"]
 
 CONFIG_MAX_COMPRESSABLE_COUNT = 20
-CONFIG_REPLACE_FILE = "n"
+CONFIG_DELETE_ORIGINAL_FILE = "n"
 
 CMD_PHONE = 0
 CMD_TEST = 1
@@ -36,7 +36,7 @@ try:
 except ValueError:
     pass
 
-CONFIG_REPLACE_FILE = input('Replace original?(N/y):')
+CONFIG_DELETE_ORIGINAL_FILE = input('Remove original?(N/y):')
 inp = input(f"Path to scan({CONFIG_SCAN_PATH}):")
 if len(inp.strip()):
     CONFIG_SCAN_PATH = inp.strip()
@@ -145,7 +145,7 @@ def run(cmd_type=False, *popenargs, **kwargs):
 def compressor(src_path: str, duration, model, size, counter):
     global sizeOfOriginals
     global sizeOfCompressed
-    out = src_path.replace(".mp4", f"__{model}__.mp4")
+    out = src_path.replace(".mp4", f"_{model}_.mp4")
     expanded_path = os.path.expanduser(src_path)
     dir = os.path.dirname(expanded_path).replace(HOME_PATH, "~/")
     print(f"----------")
@@ -157,10 +157,10 @@ def compressor(src_path: str, duration, model, size, counter):
     print(f"  duration: {duration}")
     print(f"  start at: {add_duration_to_now("1 s")}")
     print(f"  stop at: {add_duration_to_now(duration)}")
-    if CONFIG_REPLACE_FILE == "y":
-        print(f"  replace: true")
+    if CONFIG_DELETE_ORIGINAL_FILE == "y":
+        print(f"  delete original: true")
     else:
-        print(f"  replace: false")
+        print(f"  delete original: false")
     run(CMD_PHONE, ["ls", "-l", src_path], capture_output=True, text=True)
     print(f"  ls(src)[code]: {colorize_returncode(processId.returncode)}")
     run(CMD_PHONE, ["ffmpeg", "-i", src_path, *FFMPEG_ARGS, out],
@@ -181,9 +181,9 @@ def compressor(src_path: str, duration, model, size, counter):
         f"  compressed sizes: {human_readable_size(sizeOfCompressed)}/{human_readable_size(sizeOfOriginals)}")
     print(
         f"  freed sizes: {human_readable_size(sizeOfOriginals-sizeOfCompressed)}")
-    if CONFIG_REPLACE_FILE == "y":
-        run(CMD_PHONE, ["mv", out, src_path], capture_output=True, text=True)
-        print(f"  mv(out)[code]: {colorize_returncode(processId.returncode)}")
+    if CONFIG_DELETE_ORIGINAL_FILE == "y":
+        run(CMD_PHONE, ["rm", "-f", src_path], capture_output=True, text=True)
+        print(f"  rm(out)[code]: {colorize_returncode(processId.returncode)}")
 
 
 run(CMD_TEST, ["cat", f"{CONFIG_SCAN_PATH}/log.log"],
@@ -200,7 +200,7 @@ for x in out:
             sizeStr = l[4]
             shortFilePathToPrint = f" >> {filePath.replace(STORAGE_PATH, "~/s/")}"
             sizeNum = int(sizeStr)
-            if x.endswith("__.mp4") is False:
+            if x.endswith("_.mp4") is False:
                 allCompressableCounter += 1
                 if compressableCounter < CONFIG_MAX_COMPRESSABLE_COUNT:
                     compressableCounter += 1
