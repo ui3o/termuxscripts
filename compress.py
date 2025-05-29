@@ -178,9 +178,11 @@ def compressor(src_path: str, duration, model, size, counter):
     sizeOfOriginals += int(size)
     sizeOfCompressed += compressedSizeNum
     print(
-        f"  compressed sizes: {human_readable_size(sizeOfCompressed)}/{human_readable_size(sizeOfOriginals)}")
+        f"  cur compr sizes: {human_readable_size(compressedSizeNum)}/{human_readable_size(int(size))}")
     print(
-        f"  freed sizes: {human_readable_size(sizeOfOriginals-sizeOfCompressed)}")
+        f"  all compr sizes: {human_readable_size(sizeOfCompressed)}/{human_readable_size(sizeOfOriginals)}/{human_readable_size(allSize)}")
+    print(
+        f"  all freed sizes: {human_readable_size(sizeOfOriginals-sizeOfCompressed)}/{human_readable_size(allSize)}")
     if CONFIG_DELETE_ORIGINAL_FILE == "y":
         run(CMD_PHONE, ["rm", "-f", src_path], capture_output=True, text=True)
         print(f"  rm(out)[code]: {colorize_returncode(processId.returncode)}")
