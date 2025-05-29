@@ -172,6 +172,8 @@ def compressor(src_path: str, duration, model, size, counter):
     sizeOfCompressed += compressedSizeNum
     print(
         f"  compressed sizes: {human_readable_size(sizeOfCompressed)}/{human_readable_size(sizeOfOriginals)}")
+    print(
+        f"  freed sizes: {human_readable_size(sizeOfOriginals-sizeOfCompressed)}")
     if CONFIG_REPLACE_FILE == "y":
         run(CMD_PHONE, ["mv", out, src_path], capture_output=True, text=True)
         print(f"  mv(out)[code]: {processId.returncode}")
