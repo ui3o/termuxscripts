@@ -198,6 +198,7 @@ for x in out:
         if len(l) > 1:
             filePath = l[-1]
             sizeStr = l[4]
+            shortFilePathToPrint = f"=> {filePath.replace(STORAGE_PATH, "~/s/")}"
             sizeNum = int(sizeStr)
             if x.endswith("__.mp4") is False:
                 allCompressableCounter += 1
@@ -211,14 +212,14 @@ for x in out:
                     out = str(processId.stdout)
                     dur = extract_duration(out).split(": ")[-1].strip()
                     model = extract_author(out)
-                    print(f"\033[32m[ok]\033[0m {sizeStr} [{dur}][{model}] {filePath}")
+                    print(f"\033[32m[ok]\033[0m {sizeStr} [{dur}][{model}] {shortFilePathToPrint}")
                     compressableFilePath.append(
                         f"{filePath},{dur},{model},{sizeStr}")
                     timestamps.append(dur)
                 else:
-                    print(f"[skip] {sizeStr} {filePath}")
+                    print(f"[skip] {sizeStr} {shortFilePathToPrint}")
             else:
-                print(f"\033[31m[ignore]\033[0m {sizeStr} {filePath}")
+                print(f"\033[31m[ignore]\033[0m {sizeStr} {shortFilePathToPrint}")
 
 # print(f"All video size is {allSize} and list is {compressableFilePath}, timestamps list is {timestamps}")
 print(
