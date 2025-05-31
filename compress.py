@@ -45,13 +45,15 @@ if len(inp.strip()):
     CONFIG_SCAN_PATH = inp.strip()
 
 
-def colorize_returncode(code:str):
+def colorize_returncode(code: str):
     if code == 0:
         return f"\033[32m{code}\033[0m"
     return f"\033[31m{code}\033[0m"
 
+
 def replace_non_alphanumeric(text):
     return ''.join(char if char.isalnum() else '_' for char in text)
+
 
 def extract_duration(exif_output: str) -> float:
     match = re.search(r'^Media Duration\s+:\s+(.+)', exif_output, re.MULTILINE)
@@ -59,6 +61,15 @@ def extract_duration(exif_output: str) -> float:
         return str(match.group(1)).strip()
     else:
         return "0:00:00"
+
+
+def extract_CompanyName(exif_output: str) -> str:
+    match = re.search(
+        r'^Encoded Hardware Company Name\s+:\s+(.+)', exif_output, re.MULTILINE)
+    if match:
+        return match.group(1).strip()
+    else:
+        return ""
 
 
 def extract_author(exif_output: str) -> str:
@@ -208,26 +219,29 @@ for x in out:
             sizeStr = l[4]
             shortFilePathToPrint = f" >> {filePath.replace(STORAGE_PATH, "~/s/")}"
             sizeNum = int(sizeStr)
-            if x.endswith("_.mp4") is False:
+            run(CMD_PHONE, [
+                "bash", "-c", f"exiftool {filePath}"], capture_output=True, text=True)
+            run(CMD_TEST, ["bash", "-c", f"cat {CONFIG_SCAN_PATH}/duration.log"],
+                capture_output=True, text=True)
+            out = str(processId.stdout)
+            dur = extract_duration(out).split(": ")[-1].strip()
+            model = extract_author(out)
+            companyName = extract_CompanyName(out)
+            if companyName == "..::":
                 allCompressableCounter += 1
                 if compressableCounter < CONFIG_MAX_COMPRESSABLE_COUNT:
                     compressableCounter += 1
                     allSize += sizeNum
-                    run(CMD_PHONE, [
-                        "bash", "-c", f"exiftool {filePath}"], capture_output=True, text=True)
-                    run(CMD_TEST, ["bash", "-c", f"cat {CONFIG_SCAN_PATH}/duration.log"],
-                        capture_output=True, text=True)
-                    out = str(processId.stdout)
-                    dur = extract_duration(out).split(": ")[-1].strip()
-                    model = extract_author(out)
-                    print(f"\033[32m[ok]\033[0m {sizeStr} [{dur}][{model}]{shortFilePathToPrint}")
+                    print(
+                        f"\033[32m[ok]\033[0m {sizeStr} [{dur}][{model}]{shortFilePathToPrint}")
                     compressableFilePath.append(
                         f"{filePath},{dur},{model},{sizeStr}")
                     timestamps.append(dur)
                 else:
                     print(f"[skip] {sizeStr}{shortFilePathToPrint}")
             else:
-                print(f"\033[33m[ignore]\033[0m {sizeStr}{shortFilePathToPrint}")
+                print(
+                    f"\033[33m[ignore]\033[0m {sizeStr}{shortFilePathToPrint}")
 
 # print(f"All video size is {allSize} and list is {compressableFilePath}, timestamps list is {timestamps}")
 print(
