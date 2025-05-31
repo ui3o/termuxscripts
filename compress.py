@@ -227,8 +227,7 @@ for x in out:
             dur = extract_duration(out).split(": ")[-1].strip()
             model = extract_author(out)
             companyName = extract_CompanyName(out)
-            print(f"company name '{companyName}'")
-            if companyName == "..::":
+            if companyName != "..::":
                 allCompressableCounter += 1
                 if compressableCounter < CONFIG_MAX_COMPRESSABLE_COUNT:
                     compressableCounter += 1
