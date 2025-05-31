@@ -69,7 +69,7 @@ def repleceVideo(videoPath: str, outPath: str, model: str, counter):
             "-author", "-overwrite_original", outPath], capture_output=True, text=True)
         print(f"  exiftool[code]: {colorize_returncode()}")
         run(CMD_PHONE, ["exiftool",  "-createdate",
-            f"createDate", outPath], capture_output=True, text=True)
+            f"{createDate}", outPath], capture_output=True, text=True)
         print(f"  exiftool[code]: {colorize_returncode()}")
         run(CMD_PHONE, ["rm", "-f", videoPath], capture_output=True, text=True)
         print(f"  rm[code]: {colorize_returncode()}")
