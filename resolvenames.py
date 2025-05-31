@@ -35,6 +35,14 @@ except ValueError:
     pass
 
 
+def extract_date(exif_output: str) -> str:
+    match = re.search(r'^Create Date\s+:\s+(.+)', exif_output, re.MULTILINE)
+    if match:
+        return match.group(1).strip()
+    else:
+        return ""
+
+
 def repleceVideo(videoPath: str, outPath: str, model: str, counter):
     expanded_path = os.path.expanduser(videoPath)
     dir = os.path.dirname(expanded_path).replace(HOME_PATH, "~/")
@@ -43,13 +51,21 @@ def repleceVideo(videoPath: str, outPath: str, model: str, counter):
     print(f"  dir: {dir}")
     print(f"  src: {videoPath.replace(STORAGE_PATH+CONFIG_SCAN_PATH+'/', "")}")
     print(f"  dest: {outPath.replace(STORAGE_PATH+CONFIG_SCAN_PATH+'/', "")}")
-    run(CMD_PHONE, ["ffmpeg", "-i", videoPath, "-map_metadata", "0","-metadata", f"Encoded_Hardware_Name={model}", "-metadata", "Encoded_Hardware_CompanyName=..::", "-movflags", "use_metadata_tags", "-c", "copy",  outPath],
+    run(CMD_PHONE, [
+        "bash", "-c", f"exiftool {filePath}"], capture_output=True, text=True)
+    run(CMD_TEST, ["bash", "-c", f"cat {CONFIG_SCAN_PATH}/duration.log"],
+        capture_output=True, text=True)
+    print(f"  exiftool[code]: {colorize_returncode(processId.returncode)}")
+    out = str(processId.stdout)
+    createDate = extract_date(out)
+    print(f"  create date: {createDate}")
+    run(CMD_PHONE, ["ffmpeg", "-i", videoPath, "-map_metadata", "0", "-metadata", f"Encoded_Hardware_Name={model}", "-metadata", "Encoded_Hardware_CompanyName=..::", "-movflags", "use_metadata_tags", "-c", "copy",  outPath],
         capture_output=True, text=True)
     run(CMD_TEST, ["ls", "-l"],
         capture_output=True, text=True)
     print(f"  ffmpeg[code]: {colorize_returncode(processId.returncode)}")
     if processId.returncode == 0:
-        run(CMD_PHONE, ["exiftool", "-TagsFromFile", videoPath, "-gps*", "-samsung*",
+        run(CMD_PHONE, ["exiftool", "-TagsFromFile", videoPath, "createdate",  createDate, "-gps*", "-samsung*",
             "-author", "-overwrite_original", outPath], capture_output=True, text=True)
         print(f"  exiftool[code]: {colorize_returncode(processId.returncode)}")
         run(CMD_PHONE, ["rm", "-f", videoPath], capture_output=True, text=True)
