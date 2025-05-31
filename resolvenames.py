@@ -58,7 +58,7 @@ def repleceVideo(videoPath: str, outPath: str, model: str, counter):
     print(f"  exiftool[code]: {colorize_returncode()}")
     out = str(processId.stdout)
     createDate = extract_date(out)
-    print(f"  create date: {createDate}")
+    print(f"  create date: '{createDate}'")
     run(CMD_PHONE, ["ffmpeg", "-i", videoPath, "-map_metadata", "0", "-metadata", f"Encoded_Hardware_Name={model}", "-metadata", "Encoded_Hardware_CompanyName=..::", "-movflags", "use_metadata_tags", "-c", "copy",  outPath],
         capture_output=True, text=True)
     run(CMD_TEST, ["ls", "-l"],
