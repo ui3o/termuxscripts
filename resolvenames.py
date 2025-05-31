@@ -114,7 +114,6 @@ for x in out:
             sizeStr = l[4]
             shortFilePathToPrint = f" >> {filePath.replace(STORAGE_PATH, "~/s/")}"
             sizeNum = int(sizeStr)
-            print(x)
             if compressableCounter < CONFIG_MAX_COMPRESSABLE_COUNT:
                 compressableCounter += 1
                 if x.endswith("_Galaxy_S23_.mp4") is True:
