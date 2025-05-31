@@ -181,7 +181,8 @@ def compressor(src_path: str, duration, model, size, counter):
         capture_output=True, text=True)
     print(f"  ffmpeg[code]: {colorize_returncode(processId.returncode)}")
     run(CMD_PHONE, ["exiftool", "-TagsFromFile", src_path, "-gps*", "-samsung*",
-        "-author", "-overwrite_original", out], capture_output=True, text=True)
+        "-author", "-metadata", f"Encoded_Hardware_Name={model}", "-metadata",
+                    "Encoded_Hardware_CompanyName=..::", "-overwrite_original", out], capture_output=True, text=True)
     print(f"  exiftool[code]: {colorize_returncode(processId.returncode)}")
     run(CMD_PHONE, ["ls", "-l", out], capture_output=True, text=True)
     run(CMD_TEST, ["cat", f"{CONFIG_SCAN_PATH}/log.log"],
@@ -201,7 +202,7 @@ def compressor(src_path: str, duration, model, size, counter):
     print(
         f"  all freed sizes: {human_readable_size(sizeOfOriginals-sizeOfCompressed)}/{human_readable_size(allSize)}")
     if CONFIG_DELETE_ORIGINAL_FILE == "y":
-        run(CMD_PHONE, ["rm", "-f", src_path], capture_output=True, text=True)
+        run(CMD_PHONE, ["mv", out, src_path], capture_output=True, text=True)
         print(f"  rm(out)[code]: {colorize_returncode(processId.returncode)}")
 
 
