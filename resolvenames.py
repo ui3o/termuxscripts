@@ -63,13 +63,13 @@ def repleceVideo(videoPath: str, outPath: str, model: str, counter):
         capture_output=True, text=True)
     run(CMD_TEST, ["ls", "-l"],
         capture_output=True, text=True)
-    print(f"  ffmpeg[code]: {colorize_returncode)}")
+    print(f"  ffmpeg[code]: {colorize_returncode()}")
     if processId.returncode == 0:
         run(CMD_PHONE, ["exiftool", "-TagsFromFile", videoPath, "-createdate",  createDate, "-gps*", "-samsung*",
             "-author", "-overwrite_original", outPath], capture_output=True, text=True)
-        print(f"  exiftool[code]: {colorize_returncode)}")
+        print(f"  exiftool[code]: {colorize_returncode()}")
         run(CMD_PHONE, ["rm", "-f", videoPath], capture_output=True, text=True)
-        print(f"  rm[code]: {colorize_returncode)}")
+        print(f"  rm[code]: {colorize_returncode()}")
 
 
 def colorize_returncode(code: int):
