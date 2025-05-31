@@ -55,7 +55,7 @@ def repleceVideo(videoPath: str, outPath: str, model: str, counter):
         "bash", "-c", f"exiftool {filePath}"], capture_output=True, text=True)
     run(CMD_TEST, ["bash", "-c", f"cat {CONFIG_SCAN_PATH}/duration.log"],
         capture_output=True, text=True)
-    print(f"  exiftool[code]: {colorize_returncode(processId.returncode)}")
+    print(f"  exiftool[code]: {colorize_returncode()}")
     out = str(processId.stdout)
     createDate = extract_date(out)
     print(f"  create date: {createDate}")
@@ -63,19 +63,19 @@ def repleceVideo(videoPath: str, outPath: str, model: str, counter):
         capture_output=True, text=True)
     run(CMD_TEST, ["ls", "-l"],
         capture_output=True, text=True)
-    print(f"  ffmpeg[code]: {colorize_returncode(processId.returncode)}")
+    print(f"  ffmpeg[code]: {colorize_returncode)}")
     if processId.returncode == 0:
         run(CMD_PHONE, ["exiftool", "-TagsFromFile", videoPath, "-createdate",  createDate, "-gps*", "-samsung*",
             "-author", "-overwrite_original", outPath], capture_output=True, text=True)
-        print(f"  exiftool[code]: {colorize_returncode(processId.returncode)}")
+        print(f"  exiftool[code]: {colorize_returncode)}")
         run(CMD_PHONE, ["rm", "-f", videoPath], capture_output=True, text=True)
-        print(f"  rm[code]: {colorize_returncode(processId.returncode)}")
+        print(f"  rm[code]: {colorize_returncode)}")
 
 
 def colorize_returncode(code: int):
-    if code == 0:
-        return f"\033[32m{code}\033[0m"
-    return f"\033[31m{code}\033[0m"
+    if processId.returncode == 0:
+        return f"\033[32m{processId.returncode}\033[0m"
+    return f"\033[31m{processId.returncode}\033[0m\n{processId.stdout}"
 
 
 def contineRun():
