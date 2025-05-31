@@ -72,7 +72,7 @@ def repleceVideo(videoPath: str, outPath: str, model: str, counter):
         print(f"  rm[code]: {colorize_returncode()}")
 
 
-def colorize_returncode(code: int):
+def colorize_returncode():
     if processId.returncode == 0:
         return f"\033[32m{processId.returncode}\033[0m"
     return f"\033[31m{processId.returncode}\033[0m\n{processId.stdout}"
