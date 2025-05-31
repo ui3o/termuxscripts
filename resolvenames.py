@@ -43,7 +43,7 @@ def repleceVideo(videoPath: str, outPath: str, model: str, counter):
     print(f"  dir: {dir}")
     print(f"  src: {videoPath.replace(STORAGE_PATH+CONFIG_SCAN_PATH+'/', "")}")
     print(f"  dest: {outPath.replace(STORAGE_PATH+CONFIG_SCAN_PATH+'/', "")}")
-    run(CMD_PHONE, ["ffmpeg", "-i", videoPath, "-metadata", f"Encoded_Hardware_Name={model}", "-metadata", "Encoded_Hardware_CompanyName=..::", "-movflags", "use_metadata_tags", "-c", "copy",  outPath],
+    run(CMD_PHONE, ["ffmpeg", "-i", videoPath, "-map_metadata", "0", "-metadata", f"Encoded_Hardware_Name={model}", "-metadata", "Encoded_Hardware_CompanyName=..::", "-movflags", "use_metadata_tags", "-c", "copy",  outPath],
         capture_output=True, text=True)
     run(CMD_TEST, ["ls", "-l"],
         capture_output=True, text=True)
