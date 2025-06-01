@@ -215,7 +215,7 @@ out = str(processId.stdout).split("\n")
 for x in out:
     if x.__len__:
         run(CMD_PHONE, ["ls", "-l", x], capture_output=True, text=True)
-        l = str(processId.stdout).split("\n").split(" ")
+        l = str(processId.stdout).strip().split(" ")
         print(l)
         print(processId.stdout)
         if len(l) > 1:
