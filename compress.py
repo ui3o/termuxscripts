@@ -7,7 +7,7 @@ import subprocess
 
 HOME_PATH = "/data/data/com.termux/files/home/"
 STORAGE_PATH = HOME_PATH+"storage/"
-CONFIG_SCAN_PATH = "dcim/"
+CONFIG_SCAN_PATH = ""
 FFMPEG_ARGS = ["-map_metadata", "0", "-vcodec", "libx264", "-crf", "28", "-preset",
                "fast", "-acodec", "aac", "-b:a", "128k", "-movflags", "use_metadata_tags"]
 
@@ -208,13 +208,16 @@ def compressor(src_path: str, duration, model, size, counter):
 
 run(CMD_TEST, ["cat", f"{CONFIG_SCAN_PATH}/log.log"],
     capture_output=True, text=True)
-run(CMD_PHONE, ["find", STORAGE_PATH+CONFIG_SCAN_PATH, "-size", "+1M", "-type",
-    "f", "-exec", "ls", "-l", "{}", ";", "-name", "*.mts", "-o", "-name", "*.mp4"], capture_output=True, text=True)
+run(CMD_PHONE, ["find", "-L", STORAGE_PATH+CONFIG_SCAN_PATH, "-type",
+    "f", "-iname", "*.mts", "-o", "-iname", "*.mp4"], capture_output=True, text=True)
 out = str(processId.stdout).split("\n")
 # print(out)
 for x in out:
     if x.__len__:
-        l = x.split(" ")
+        run(CMD_PHONE, ["ls", "-l", x], capture_output=True, text=True)
+        l = str(processId.stdout).split("\n").split(" ")
+        print(l)
+        print(processId.stdout)
         if len(l) > 1:
             filePath = "/data/data/com.termux" + \
                 x.split("/data/data/com.termux")[-1]
