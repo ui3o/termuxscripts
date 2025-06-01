@@ -7,7 +7,7 @@ import subprocess
 
 HOME_PATH = "/data/data/com.termux/files/home/"
 STORAGE_PATH = HOME_PATH+"storage/"
-CONFIG_SCAN_PATH = "dcim/Camera"
+CONFIG_SCAN_PATH = "dcim/"
 FFMPEG_ARGS = ["-map_metadata", "0", "-vcodec", "libx264", "-crf", "28", "-preset",
                "fast", "-acodec", "aac", "-b:a", "128k", "-movflags", "use_metadata_tags"]
 
@@ -216,6 +216,7 @@ for x in out:
     if x.__len__:
         l = x.split(" ")
         if len(l) > 1:
+            print(l)
             filePath = l[-1]
             sizeStr = l[4]
             shortFilePathToPrint = f" >> {filePath.replace(STORAGE_PATH, "~/s/")}"
