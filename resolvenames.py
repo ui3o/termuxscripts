@@ -102,7 +102,7 @@ def run(cmd_type=False, *popenargs, **kwargs):
 
 run(CMD_TEST, ["cat", f"{CONFIG_SCAN_PATH}/log.log"],
     capture_output=True, text=True)
-run(CMD_PHONE, ["find", STORAGE_PATH+CONFIG_SCAN_PATH, "-size", "+1M", "-type",
+run(CMD_PHONE, ["find", STORAGE_PATH+CONFIG_SCAN_PATH, "-type",
     "f", "-name", "*.mp4", "-exec", "ls", "-l", "{}", ";"], capture_output=True, text=True)
 out = str(processId.stdout).split("\n")
 # print(out)
