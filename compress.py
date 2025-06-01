@@ -209,14 +209,15 @@ def compressor(src_path: str, duration, model, size, counter):
 run(CMD_TEST, ["cat", f"{CONFIG_SCAN_PATH}/log.log"],
     capture_output=True, text=True)
 run(CMD_PHONE, ["find", STORAGE_PATH+CONFIG_SCAN_PATH, "-size", "+1M", "-type",
-    "f", "-name", "*.mts", "-name", "*.mp4", "-exec", "ls", "-l", "{}", ";"], capture_output=True, text=True)
+    "f", "-name", "*.mts", "-o", "-name", "*.mp4", "-exec", "ls", "-l", "{}", ";"], capture_output=True, text=True)
 out = str(processId.stdout).split("\n")
 # print(out)
 for x in out:
     if x.__len__:
         l = x.split(" ")
         if len(l) > 1:
-            filePath = "/data/data/com.termux" + x.split("/data/data/com.termux")[-1]
+            filePath = "/data/data/com.termux" + \
+                x.split("/data/data/com.termux")[-1]
             sizeStr = l[4]
             shortFilePathToPrint = f" >> {filePath.replace(STORAGE_PATH, "~/s/")}"
             sizeNum = int(sizeStr)
