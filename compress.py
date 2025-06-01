@@ -221,7 +221,7 @@ for x in out:
             shortFilePathToPrint = f" >> {filePath.replace(STORAGE_PATH, "~/s/")}"
             sizeNum = int(sizeStr)
             run(CMD_PHONE, [
-                "bash", "-c", f"exiftool {filePath}"], capture_output=True, text=True)
+                "bash", "-c", f"exiftool '{filePath}'"], capture_output=True, text=True)
             run(CMD_TEST, ["bash", "-c", f"cat {CONFIG_SCAN_PATH}/duration.log"],
                 capture_output=True, text=True)
             out = str(processId.stdout)
