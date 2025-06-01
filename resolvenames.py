@@ -104,6 +104,7 @@ run(CMD_TEST, ["cat", f"{CONFIG_SCAN_PATH}/log.log"],
     capture_output=True, text=True)
 run(CMD_PHONE, ["find", STORAGE_PATH+CONFIG_SCAN_PATH, "-type",
     "f", "-name", "*.mp4", "-exec", "ls", "-l", "{}", ";"], capture_output=True, text=True)
+print(processId.stdout)
 out = str(processId.stdout).split("\n")
 # print(out)
 for x in out:
