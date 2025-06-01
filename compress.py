@@ -217,7 +217,8 @@ for x in out:
         l = x.split(" ")
         if len(l) > 1:
             print(l)
-            filePath = l[-1]
+            filePath = "/data/data/com.termux" + x.split("/data/data/com.termux")[-1]
+            print(filePath)
             sizeStr = l[4]
             shortFilePathToPrint = f" >> {filePath.replace(STORAGE_PATH, "~/s/")}"
             sizeNum = int(sizeStr)
