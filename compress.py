@@ -56,7 +56,7 @@ def replace_non_alphanumeric(text):
 
 
 def extract_duration(exif_output: str) -> float:
-    match = re.search(r'^Media Duration\s+:\s+(.+)', exif_output, re.MULTILINE)
+    match = re.search(r'^Duration\s+:\s+(.+)', exif_output, re.MULTILINE)
     if match:
         return str(match.group(1)).strip()
     else:
@@ -216,8 +216,6 @@ for x in out:
     if x.__len__:
         run(CMD_PHONE, ["ls", "-l", x], capture_output=True, text=True)
         l = str(processId.stdout).strip().split(" ")
-        print(l)
-        print(processId.stdout)
         if len(l) > 1:
             filePath = "/data/data/com.termux" + \
                 x.split("/data/data/com.termux")[-1]
